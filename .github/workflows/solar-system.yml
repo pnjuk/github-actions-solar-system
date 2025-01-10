@@ -1,33 +1,42 @@
 name: Solar System Workflow
 
-on: 
-  workflow_dispatch:
+on:
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
   push:
     branches:
       - main
-      - 'feature/*'
-    
-jobs:
-    unit-testing:
-        name: Unit Testing
-        runs-on: ubuntu-latest
-        steps:
-        - name: Checkout Repository
-          uses: actions/checkout@v4
+      - 'feature/*'  # Trigger on push to main and feature branches
 
-        - name: Setup NodeJS Version
-          uses: actions/setup-node@v4
-          with:
-            node-version: 20
-    
-        - name: Install Dependencies
-          run: npm install
-    
-        - name: Unit Testing
-          run: npm test
+env:  # Set environment variables at the workflow level
+  MONGO_URI: 'mongodb+srv://supercluster.d83jj.mongodb.net/superData'
+  MONGO_USERNAME: superuser
+  # MONGO_PASSWORD will be retrieved from GitHub Secrets
+
+jobs:
+  unit-testing:
+    name: Unit Testing
+    runs-on: ubuntu-latest  # Using the latest Ubuntu runner
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup NodeJS Version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20  # Setup Node.js version 20
+
+      - name: Install Dependencies
+        run: npm install  # Install project dependencies
+
+      - name: Unit Testing
+        run: npm test  # Run the unit tests (ensure `npm test` is defined in package.json)
+
+      - name: Archive Test Result
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mocha-Test-Result
+          path: test-results.xml  # Path to test results XML file (make sure it's generated)
           
-        - name: Archive Test Result
-          uses: actions/upload-artifact@v4
-          with:
-            name: Mocha-Test-Result
-            path: test-results.xml
+      - name: Print Environment Variables (optional, for debugging)
+        run: echo "MONGO_URI: $MONGO_URI, MONGO_USERNAME: $MONGO_USERNAME"
