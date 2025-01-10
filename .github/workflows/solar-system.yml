@@ -29,14 +29,15 @@ jobs:
       - name: Install Dependencies
         run: npm install  # Install project dependencies
 
-      - name: Unit Testing
+      - name: Run Tests
         run: npm test  # Run the unit tests (ensure `npm test` is defined in package.json)
+        env:
+          MONGO_URI: ${{ env.MONGO_URI }}  # Use the MONGO_URI environment variable
+          MONGO_USERNAME: ${{ env.MONGO_USERNAME }}  # Use the MONGO_USERNAME environment variable
+          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}  # Retrieve MONGO_PASSWORD from secrets
 
       - name: Archive Test Result
         uses: actions/upload-artifact@v4
         with:
           name: Mocha-Test-Result
           path: test-results.xml  # Path to test results XML file (make sure it's generated)
-          
-      - name: Print Environment Variables (optional, for debugging)
-        run: echo "MONGO_URI: $MONGO_URI, MONGO_USERNAME: $MONGO_USERNAME"
